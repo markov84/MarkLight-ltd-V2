@@ -1,0 +1,54 @@
+[
+  {
+    "image": "https://vivalux.bg/cache/public/image-product-e9618ebf-004868-01.jpg",
+    "title": "LED Модерен полилей",
+    "category": "LED Полилеи",
+    "categorySlug": "led-polilei",
+    "badge": "Bestseller"
+  },
+  {
+    "image": "https://m.media-amazon.com/images/I/51t53RX1zmL._AC_SX679_.jpg",
+    "title": "LED Плафон 82W с дистанционно управление",
+    "category": "LED Плафони",
+    "categorySlug": "led-plafoni",
+    "badge": "New"
+  },
+  {
+    "image": "https://cdn.27.ua/sc--media--prod/default/3e/94/45/3e94454b-b1cf-4c6d-8623-b5c06b4de3f9.jpg",
+    "title": "Полилеи",
+    "category": "Полилеи",
+    "categorySlug": "polilei",
+    "badge": "-10%"
+  },
+  {
+    "image": "https://www.vitolighting.com/2744-23288-thickbox_default/led-filament-bulb-ledisone-retro-st64-8w-880lm-e27-2500k-warm-white-1513530-vito.jpg",
+    "title": "Филаментни LED Крушки",
+    "category": "Винтидж",
+    "categorySlug": "led-krushki"
+  },
+  {
+    "image": "https://artboxdesign.eu/wp-content/uploads/2025/04/6-Photoroom-33-300x300.jpg",
+    "title": "Кристален акцент",
+    "category": "Луксозни",
+    "categorySlug": "luksozni",
+    "badge": "Limited"
+  },
+  {
+    "image": "https://www.led-zona.bg/uploads/com_article/gallery/1796ebd4d699fdfba76e24960515e9df6f0b069e.jpg",
+    "title": "LED Лампиони",
+    "category": "Лампиони",
+    "categorySlug":"lampioni"
+   },
+  {
+    "image": "https://elbulgaria.com/data/kimo_images/kimo_product_images_unit_112307/tiny_4044-3bk-elbulgaria.webp?f=3794",
+    "title": "Спотове",
+    "category": "Спотове",
+    "categorySlug": "spotove"
+   },
+  {
+    "image": "https://example.com/floor-lamp.jpg",
+    "title": "Стояща лампа Nordic",
+    "category": "Стоящи лампи",
+    "categorySlug": "stojashti-lampi"
+  }
+]
