@@ -1,0 +1,43 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "MarkLight API",
+    "version": "1.0.0",
+    "description": "Документация на основните endpoints за MarkLight онлайн магазин."
+  },
+  "servers": [
+    { "url": "http://localhost:5000/api" }
+  ],
+  "paths": {
+    "/products": {
+      "get": {
+        "summary": "Връща всички продукти",
+        "responses": {
+          "200": { "description": "Списък с продукти" }
+        }
+      },
+      "post": {
+        "summary": "Създава нов продукт",
+        "responses": {
+          "201": { "description": "Продуктът е създаден" }
+        }
+      }
+    },
+    "/auth/register": {
+      "post": {
+        "summary": "Регистрация на потребител",
+        "responses": {
+          "201": { "description": "Успешна регистрация" }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "summary": "Вход на потребител",
+        "responses": {
+          "200": { "description": "Успешен вход" }
+        }
+      }
+    }
+  }
+}
