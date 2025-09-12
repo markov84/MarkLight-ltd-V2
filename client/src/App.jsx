@@ -1,4 +1,5 @@
 import React, { Suspense, lazy } from "react";
+import usePageRestore from './hooks/usePageRestore';
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Layout from "./components/Layout";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -40,6 +41,8 @@ import AdminWishlist from './pages/AdminWishlist.jsx';
 import AdminAnalytics from './pages/AdminAnalytics.jsx';
 import AdminCourier from './pages/AdminCourier.jsx';
 import AdminReviews from './pages/AdminReviews.jsx';
+import AdminSuggestions from './pages/AdminSuggestions.jsx';
+const WishSuggestion = lazy(() => import('./pages/WishSuggestion.jsx'));
 
 function AppRoutes() {
   return (
@@ -80,6 +83,17 @@ function AppRoutes() {
             <Admin />
           </ProtectedRoute>
         } />
+        <Route path="/admin/reviews" element={
+          <ProtectedRoute adminOnly={true}>
+            <AdminReviews />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/suggestions" element={
+          <ProtectedRoute adminOnly={true}>
+            <AdminSuggestions />
+          </ProtectedRoute>
+        } />
+        <Route path="/wish-suggestion" element={<WishSuggestion />} />
         <Route path="/admin/coupons" element={
           <ProtectedRoute adminOnly={true}>
             <AdminCoupons />

@@ -30,7 +30,7 @@ export default function VirtualizedProductGrid({ products, onAddToCart, onOpenPr
     );
   };
 
-  // Връщаме фиксирана височина за 3 реда по 4 продукта (общо 12)
+   
   // ВИНАГИ показвай 3 реда по 4 продукта (общо 12), дори ако има по-малко продукти
   return (
     <Grid

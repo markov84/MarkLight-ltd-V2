@@ -81,7 +81,7 @@ const translations = {
     
     // About page
     'about.title': 'За нас',
-  'about.hero.subtitle': 'Вече с дългогодишен опит създаваме уникални решения за осветление, които трансформират пространствата в истински произведения на изкуството.',
+  'about.hero.subtitle': 'Дългогодишен опит',
     'about.hero.catalog': 'Разгледай каталога',
     'about.hero.contact': 'Свържи се с нас',
     'about.story.title': 'Нашата история',
@@ -160,7 +160,7 @@ const translations = {
     
     // Features
   'features.experience': 'Дългогодишен опит',
-    'features.experience.desc': 'Водещ доставчик на луксозно осветление в България',
+  'features.experience.desc': 'На добра цена',
     'features.quality': 'Гарантира за качество',
     'features.quality.desc': 'Всички наши продукти са с официална гаранция',
     'features.delivery': 'Безплатна доставка',
@@ -298,7 +298,6 @@ const translations = {
     
     // Features
     'features.experience': 'Many Years of Experience',
-  'features.experience.desc': 'Leading supplier of MARK LIGHT LTD in Bulgaria',
     'features.quality': 'Quality Guarantee',
     'features.quality.desc': 'All our products come with official warranty',
     'features.delivery': 'Free Delivery',

@@ -29,9 +29,7 @@ export default function Footer() {
 
   const services = [
     "Безплатна консултация",
-    "Проектиране на осветление",
-    "Монтаж и инсталация",
-    "Гаранционна поддръжка"
+     "Гаранционна поддръжка"
   ];
 
   return (
@@ -174,8 +172,14 @@ export default function Footer() {
                 </svg>
               </div>
               <div>
-                <p className="text-white font-medium">Адрес</p>
+                <p className="text-white font-medium">Можите да ни намерите на :</p>
                 <p className="text-gray-400 text-sm">гр. Габрово, ул. Пенчо Постомпиров 21</p>
+                <p className="text-gray-400 text-sm">гр. Габрово, ул К.Иречек 3</p>
+                <p className="text-gray-400 text-sm">гр. Севлиево, ул. Ст. Планина 65 </p>
+                <a href="https://www.google.com/maps/search/?api=1&query=42.86940,25.32047"
+                    target="_blank" rel="noopener">
+                    Виж на карта
+                  </a>
               </div>
             </div>
             <div className="flex items-center space-x-3">

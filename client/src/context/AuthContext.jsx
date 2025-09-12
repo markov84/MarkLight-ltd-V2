@@ -15,8 +15,14 @@ export function AuthProvider({ children }) {
       setLoading(true);
       const { data } = await http.get(`${API}/api/auth/profile`, { withCredentials: true });
       setUser(data.user);
+      if (data.user) {
+        localStorage.setItem("user", JSON.stringify(data.user));
+      } else {
+        localStorage.removeItem("user");
+      }
     } catch {
       setUser(null);
+      localStorage.removeItem("user");
     } finally {
       setLoading(false);
     }
@@ -30,11 +36,13 @@ export function AuthProvider({ children }) {
   const login = async (username, password) => {
     await http.post(`${API}/api/auth/login`, { username, password }, { withCredentials: true });
     await fetchProfile();
+    // user will be set and stored in localStorage by fetchProfile
   };
 
   const logout = async (navigate) => {
     await http.post(`${API}/api/auth/logout`, {}, { withCredentials: true });
     setUser(null);
+    localStorage.removeItem("user");
     if (navigate) {
       navigate("/");
     }

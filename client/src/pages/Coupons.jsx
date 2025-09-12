@@ -37,7 +37,15 @@ export default function Coupons() {
     setError("");
     setSuccess("");
     try {
-      const res = await axios.post(`${API}/api/coupon/create`, form, { withCredentials: true });
+      const payload = {
+        code: form.code,
+        discountType: "percent", // може да се направи динамично, ако искаш
+        discountValue: Number(form.discount),
+        expiresAt: form.expiresAt,
+        minOrderValue: form.minOrderValue ? Number(form.minOrderValue) : 0,
+        usageLimit: form.usageLimit ? Number(form.usageLimit) : 1,
+      };
+      const res = await axios.post(`${API}/api/coupon/create`, payload, { withCredentials: true });
       setSuccess("Купонът е създаден успешно!");
       setForm({ code: "", discount: "", expiresAt: "", minOrderValue: "", usageLimit: "" });
       fetchCoupons();
@@ -66,11 +74,26 @@ export default function Coupons() {
       <form onSubmit={handleCreate} className="bg-white dark:bg-gray-800 p-4 rounded shadow space-y-4">
         <h2 className="text-lg font-semibold mb-2">Създай нов купон</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <input type="text" placeholder="Код на купона" required value={form.code} onChange={e => setForm(f => ({ ...f, code: e.target.value }))} className="px-2 py-2 border rounded w-full" />
-          <input type="number" placeholder="Отстъпка (%)" required value={form.discount} onChange={e => setForm(f => ({ ...f, discount: e.target.value }))} className="px-2 py-2 border rounded w-full" />
-          <input type="date" placeholder="Валиден до" required value={form.expiresAt} onChange={e => setForm(f => ({ ...f, expiresAt: e.target.value }))} className="px-2 py-2 border rounded w-full" />
-          <input type="number" placeholder="Мин. стойност на поръчка" value={form.minOrderValue} onChange={e => setForm(f => ({ ...f, minOrderValue: e.target.value }))} className="px-2 py-2 border rounded w-full" />
-          <input type="number" placeholder="Лимит на използване" value={form.usageLimit} onChange={e => setForm(f => ({ ...f, usageLimit: e.target.value }))} className="px-2 py-2 border rounded w-full" />
+          <div className="flex flex-col">
+            <label htmlFor="code" className="mb-1 text-xs font-semibold text-gray-700 dark:text-gray-200">Код на купона *</label>
+            <input id="code" type="text" required value={form.code} onChange={e => setForm(f => ({ ...f, code: e.target.value }))} className="px-2 py-2 border rounded w-full bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100" />
+          </div>
+          <div className="flex flex-col">
+            <label htmlFor="discount" className="mb-1 text-xs font-semibold text-gray-700 dark:text-gray-200">Отстъпка (%) *</label>
+            <input id="discount" type="number" required value={form.discount} onChange={e => setForm(f => ({ ...f, discount: e.target.value }))} className="px-2 py-2 border rounded w-full bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100" />
+          </div>
+          <div className="flex flex-col">
+            <label htmlFor="expiresAt" className="mb-1 text-xs font-semibold text-gray-700 dark:text-gray-200">Валиден до *</label>
+            <input id="expiresAt" type="date" required value={form.expiresAt} onChange={e => setForm(f => ({ ...f, expiresAt: e.target.value }))} className="px-2 py-2 border rounded w-full bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100" />
+          </div>
+          <div className="flex flex-col">
+            <label htmlFor="minOrderValue" className="mb-1 text-xs font-semibold text-gray-700 dark:text-gray-200">Мин. стойност на поръчка</label>
+            <input id="minOrderValue" type="number" value={form.minOrderValue} onChange={e => setForm(f => ({ ...f, minOrderValue: e.target.value }))} className="px-2 py-2 border rounded w-full bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100" />
+          </div>
+          <div className="flex flex-col">
+            <label htmlFor="usageLimit" className="mb-1 text-xs font-semibold text-gray-700 dark:text-gray-200">Лимит на използване</label>
+            <input id="usageLimit" type="number" value={form.usageLimit} onChange={e => setForm(f => ({ ...f, usageLimit: e.target.value }))} className="px-2 py-2 border rounded w-full bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100" />
+          </div>
         </div>
         <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">Създай купон</button>
       </form>
@@ -79,7 +102,7 @@ export default function Coupons() {
       {error && <div className="bg-red-100 text-red-800 p-2 rounded">{error}</div>}
 
       {/* Списък с купони */}
-      <div className="bg-white dark:bg-gray-800 p-4 rounded shadow">
+  <div className={`bg-white dark:bg-gray-800 p-4 rounded shadow ${window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'coupon-table-dark' : ''}`}> 
         <h2 className="text-lg font-semibold mb-2">Активни купони</h2>
         {loading ? (
           <div className="text-center p-4">Зареждане...</div>

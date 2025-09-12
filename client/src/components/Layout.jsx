@@ -9,15 +9,19 @@ import CategoryDropdown from "./CategoryDropdown";
 import LanguageSelector from "./LanguageSelector";
 import Footer from "./Footer";
 import SideNav from "./SideNav";
+import usePageRestore from '../hooks/usePageRestore';
 
 
 export default function Layout({ children }) {
+
+  usePageRestore();
   const { user, logout } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
   const { getTotalItems, setIsOpen } = useCart();
   const { t } = useLanguage();
-  const [dark, setDark] = useDarkMode();
   const navigate = useNavigate();
+
+  const [dark, setDark] = useDarkMode();
 
   const handleLogout = () => {
     logout();
@@ -25,7 +29,7 @@ export default function Layout({ children }) {
   };
 
   return (
-    <div className={dark ? "dark bg-gray-900 text-gray-100 min-h-screen" : "bg-gray-50 text-gray-900 min-h-screen"}>
+  <div className={dark ? "dark bg-gray-900 text-gray-100 min-h-screen" : "bg-gray-50 text-gray-900 min-h-screen"}>
       {/* Navigation */}
       <nav className="bg-white dark:bg-gray-800 shadow-lg border-b border-gray-200 dark:border-gray-700 sticky top-0 z-40">
         <div className="w-full flex flex-row items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
@@ -45,38 +49,16 @@ export default function Layout({ children }) {
           </div>
           {/* Center: Navigation Links */}
           <div className="hidden md:flex flex-1 justify-center items-center space-x-6">
-            <Link 
-              to="/"
-              className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors duration-200"
-            >
-              Начало
-            </Link>
-            <Link 
-              to="/catalog" 
-              className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors duration-200"
-            >
-              {t('nav.catalog')}
-            </Link>
+            <Link to="/" className="btn btn-ghost btn-sm">Начало</Link>
+            <Link to="/catalog" className="btn btn-ghost btn-sm">{t('nav.catalog')}</Link>
             <CategoryDropdown />
-            <Link 
-              to="/about" 
-              className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors duration-200"
-            >
-              {t('nav.about')}
-            </Link>
-            <Link 
-              to="/contact" 
-              className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors duration-200"
-            >
-              {t('nav.contact')}
-            </Link>
+            <Link to="/about" className="btn btn-ghost btn-sm">{t('nav.about')}</Link>
+            <Link to="/contact" className="btn btn-ghost btn-sm">{t('nav.contact')}</Link>
+            {user && (
+              <Link to="/wish-suggestion" className="btn btn-ghost btn-sm text-green-600">Мнения и препоръки</Link>
+            )}
             {user?.isAdmin && (
-              <Link 
-                to="/admin" 
-                className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors duration-200"
-              >
-                {t('nav.admin')}
-              </Link>
+              <Link to="/admin" className="btn btn-ghost btn-sm">{t('nav.admin')}</Link>
             )}
           </div>
           {/* Right: Controls and logout */}
@@ -86,24 +68,8 @@ export default function Layout({ children }) {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </button>
+            {/* Премахнат DaisyUI Theme Selector */}
             <LanguageSelector />
-            <button
-              onClick={() => setIsOpen(true)}
-              className="relative p-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
-              aria-label="Отвори количката"
-            >
-              <svg className="w-7 h-7" fill="none" stroke="currentColor" strokeWidth="1.7" viewBox="0 0 24 24">
-                <circle cx="9" cy="21" r="1.5" fill="currentColor" />
-                <circle cx="19" cy="21" r="1.5" fill="currentColor" />
-                <path d="M2.5 4H4.5L6.5 17H20.5C21.052 17 21.5 16.552 21.5 16C21.5 15.789 21.421 15.587 21.282 15.432L6.5 4H2.5V4Z" stroke="currentColor" strokeLinejoin="round"/>
-                <path d="M7 7H17" stroke="currentColor" strokeLinecap="round"/>
-              </svg>
-              {getTotalItems() > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-medium">
-                  {getTotalItems()}
-                </span>
-              )}
-            </button>
             <button 
               onClick={() => setDark(!dark)} 
               className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all duration-200"
@@ -119,6 +85,24 @@ export default function Layout({ children }) {
                 </svg>
               )}
             </button>
+            <button
+              onClick={() => setIsOpen(true)}
+              className="btn btn-circle btn-sm relative"
+              aria-label="Отвори количката"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="1.7" viewBox="0 0 24 24">
+                <circle cx="9" cy="21" r="1.5" fill="currentColor" />
+                <circle cx="19" cy="21" r="1.5" fill="currentColor" />
+                <path d="M2.5 4H4.5L6.5 17H20.5C21.052 17 21.5 16.552 21.5 16C21.5 15.789 21.421 15.587 21.282 15.432L6.5 4H2.5V4Z" stroke="currentColor" strokeLinejoin="round"/>
+                <path d="M7 7H17" stroke="currentColor" strokeLinecap="round"/>
+              </svg>
+              {getTotalItems() > 0 && (
+                <span className="absolute -top-1 -right-1 badge badge-error text-xs w-5 h-5 rounded-full flex items-center justify-center font-medium">
+                  {getTotalItems()}
+                </span>
+              )}
+            </button>
+            {/* Условен рендер за user/login/register */}
             {user ? (
               <div className="flex items-center space-x-3">
                 <div className="flex items-center space-x-2 bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-lg">
@@ -138,7 +122,7 @@ export default function Layout({ children }) {
                 </div>
                 <button 
                   onClick={handleLogout}
-                  className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-medium transition-all duration-200 transform hover:scale-105"
+                  className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-medium transition-all duration-200 transform hover:scale-105 btn btn-error btn-sm"
                 >
                   {t('nav.logout')}
                 </button>
@@ -147,13 +131,13 @@ export default function Layout({ children }) {
               <div className="flex items-center space-x-3">
                 <Link 
                   to="/login" 
-                  className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors duration-200"
+                  className="btn btn-outline btn-sm"
                 >
                   {t('nav.login')}
                 </Link>
                 <Link 
                   to="/register" 
-                  className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-all duration-200 transform hover:scale-105"
+                  className="btn btn-primary btn-sm"
                 >
                   {t('nav.register')}
                 </Link>
@@ -174,7 +158,7 @@ export default function Layout({ children }) {
             {user ? (
               <div className="flex items-center gap-2 py-2">
                 <Link to="/profile" className="py-2 px-3 rounded-lg border">Профил</Link>
-                <button onClick={handleLogout} className="py-2 px-3 rounded-lg bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900">Изход</button>
+                <button onClick={handleLogout} className="py-2 px-3 rounded-lg bg-red-500 hover:bg-red-600 text-white font-medium">Изход</button>
               </div>
             ) : (
               <div className="flex items-center gap-2 py-2">

@@ -1,7 +1,10 @@
- import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import AdminSuggestions from "./AdminSuggestions.jsx";
+import useAdminPageRestore from '../hooks/useAdminPageRestore';
 import { useNavigate } from "react-router-dom";
 import ModalProductDetails from "../components/ModalProductDetails";
 import axios from "axios";
+import { http } from '../lib/http';
 
 /* ------------------------ Helpers ------------------------ */
 // Нормализиране на низ (trim, спейс-колапс, малки букви, маха диакритики)
@@ -18,6 +21,10 @@ function normalizeString(str) {
 
 /* ======================== Component ======================= */
 export default function Admin() {
+  useAdminPageRestore();
+  const [stats, setStats] = useState(null);
+  const loadStats = () => http.get('/api/admin/stats', { withCredentials: true }).then(res => setStats(res.data)).catch(()=>{});
+  useEffect(()=>{ loadStats(); const h=()=>loadStats(); window.addEventListener('admin:refresh-stats', h); return ()=>window.removeEventListener('admin:refresh-stats', h); }, []);
   const navigate = useNavigate();
 
   /* ------------------------ Config ------------------------ */
@@ -559,13 +566,16 @@ export default function Admin() {
     <div className="space-y-8">
       {/* Нови функционалности */}
       <div className="flex flex-wrap gap-3 justify-center md:justify-start mb-4">
+  <button onClick={() => navigate('/admin/suggestions')} className="px-4 py-2 bg-green-700 hover:bg-green-800 text-white rounded-lg shadow text-sm">Мнения и желания</button>
         <button onClick={() => navigate('/coupons')} className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg shadow text-sm">Купони</button>
-        <button onClick={() => navigate('/wishlist')} className="px-4 py-2 bg-pink-600 hover:bg-pink-700 text-white rounded-lg shadow text-sm">Wishlist</button>
         <button onClick={() => navigate('/chat')} className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg shadow text-sm">Чат</button>
         <button onClick={() => navigate('/analytics')} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow text-sm">Анализи</button>
         <button onClick={() => navigate('/courier')} className="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg shadow text-sm">Куриер</button>
-        <button onClick={() => navigate('/reviews')} className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg shadow text-sm">Ревюта</button>
+        <button onClick={() => navigate('/admin/reviews')} className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg shadow text-sm">Ревюта</button>
       </div>
+   
+   
+      {/* Модал за мнения и желания */}
       {/* Header */}
   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between text-center sm:text-left text-sm">
         <div>
@@ -625,7 +635,9 @@ export default function Admin() {
             </div>
           </div>
         </div>
-      </div>
+      
+
+</div>
 
       {/* Product Form */}
   <div className="bg-white dark:bg-gray-800 p-3 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 w-full max-w-full mx-auto">
@@ -1199,8 +1211,7 @@ export default function Admin() {
                                 loading="lazy"
                                 onError={(e) => {
                                   e.currentTarget.onerror = null;
-                                  e.currentTarget.src =
-                                    "https://via.placeholder.com/48x48?text=No+Image";
+                                  e.currentTarget.src = "/no-image.png";
                                 }}
                               />
                             ));

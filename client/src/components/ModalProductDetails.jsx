@@ -21,6 +21,24 @@ export default function ModalProductDetails({ productId, onClose }) {
   const [isFavorite, setIsFavorite] = useState(false);
   const [favoriteLoading, setFavoriteLoading] = useState(false);
   const modalRef = useRef(null);
+  // Състояния за ревю
+  const [reviewRating, setReviewRating] = useState(0);
+  const [reviewComment, setReviewComment] = useState("");
+  const [reviewError, setReviewError] = useState("");
+  const [reviewSuccess, setReviewSuccess] = useState("");
+  const [productReviews, setProductReviews] = useState([]);
+  const [reviewsLoading, setReviewsLoading] = useState(false);
+  const [editingReviewId, setEditingReviewId] = useState(null);
+  const [editingRating, setEditingRating] = useState(0);
+  const [editingComment, setEditingComment] = useState("");
+
+  // Скриване на съобщението за успех след 3 секунди
+  useEffect(() => {
+    if (reviewSuccess) {
+  const timer = setTimeout(() => setReviewSuccess("") , 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [reviewSuccess]);
 
   // Helper: нормализиране на URL към изображение
   const resolveSrc = useCallback((src) => {
@@ -100,7 +118,55 @@ export default function ModalProductDetails({ productId, onClose }) {
     return () => { cancelled = true; };
   }, [user, productId]);
 
+
+
   // Функция за добавяне/премахване от любими
+
+  const onEditReview = (r) => {
+    setEditingReviewId(r._id);
+    setEditingRating(r.rating);
+    setEditingComment(r.comment || '');
+  };
+
+  const onCancelEdit = () => {
+    setEditingReviewId(null);
+    setEditingRating(0);
+    setEditingComment('');
+  };
+
+  const onSaveEdit = async (e) => {
+    e.preventDefault();
+    try {
+      await http.put(`${API}/api/products/${productId}/review`, {
+        reviewId: editingReviewId,
+        rating: Number(editingRating),
+        comment: editingComment
+      }, { withCredentials: true });
+      setReviewSuccess('Ревюто е обновено успешно!');
+      onCancelEdit();
+      const r = await http.get(`${API}/api/products/${productId}/reviews`);
+      setProductReviews(r.data || []);
+      setTimeout(() => setReviewSuccess(''), 2000);
+    } catch (err) {
+      setReviewError('Грешка при обновяване на ревюто');
+      setTimeout(() => setReviewError(''), 2000);
+    }
+  };
+
+  const onDeleteReview = async (reviewId) => {
+    if (!window.confirm('Сигурни ли сте, че искате да изтриете това ревю?')) return;
+    try {
+      await http.delete(`${API}/api/products/${productId}/review/${reviewId}`, { withCredentials: true });
+      const r = await http.get(`${API}/api/products/${productId}/reviews`);
+      setProductReviews(r.data || []);
+      setReviewSuccess('Ревюто е изтрито успешно.');
+      setTimeout(() => setReviewSuccess(''), 2000);
+    } catch (err) {
+      setReviewError('Грешка при изтриване на ревю');
+      setTimeout(() => setReviewError(''), 2000);
+    }
+  };
+
   const toggleFavorite = async () => {
     if (!user || !productId) return;
     setFavoriteLoading(true);
@@ -347,6 +413,109 @@ export default function ModalProductDetails({ productId, onClose }) {
                     {product.description}
                   </p>
                 )}
+                {/* Секция за добавяне на ревю */}
+                {user && (
+                  <div className="mt-8 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg shadow space-y-3">
+                    <h3 className="text-lg font-semibold mb-2">Добави ревю</h3>
+                    <form
+                      onSubmit={async e => {
+                        e.preventDefault();
+                        setReviewError("");
+                        setReviewSuccess("");
+                        try {
+                          await http.post(`${API}/api/products/${productId}/review`, {
+                            rating: reviewRating,
+                            comment: reviewComment
+                          }, { withCredentials: true });
+                          setReviewSuccess("Ревюто е изпратено успешно!");
+                          // Reload reviews
+                          try { const r = await http.get(`${API}/api/products/${productId}/reviews`); setProductReviews(r.data || []); } catch {}
+                          setReviewRating(0);
+                          setReviewComment("");
+                        } catch (err) {
+                          setReviewError("Грешка при изпращане на ревюто");
+                        }
+                      }}
+                    >
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-sm">Оценка:</span>
+                        {[1,2,3,4,5].map(star => (
+                          <button
+                            type="button"
+                            key={star}
+                            className={`text-2xl ${reviewRating >= star ? "text-yellow-400" : "text-gray-300"}`}
+                            onClick={() => setReviewRating(star)}
+                          >★</button>
+                        ))}
+                      </div>
+                      <textarea
+                        className="w-full border rounded p-2 mb-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                        rows={3}
+                        placeholder="Вашият коментар..."
+                        value={reviewComment}
+                        onChange={e => setReviewComment(e.target.value)}
+                        required
+                      />
+                      <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">Изпрати ревю</button>
+                      {reviewSuccess && <div className="text-green-600 mt-2">{reviewSuccess}</div>}
+                      {reviewError && <div className="text-red-600 mt-2">{reviewError}</div>}
+                    </form>
+                  </div>
+                )}
+
+                {/* Списък с ревюта */}
+                <div className="mt-6">
+                  <h3 className="text-lg font-semibold mb-2">Ревюта</h3>
+                  {reviewsLoading ? (
+                    <div>Зареждане на ревюта...</div>
+                  ) : productReviews.length === 0 ? (
+                    <div>Все още няма ревюта.</div>
+                  ) : (
+                    <ul className="space-y-3">
+                      {productReviews.map((r) => {
+                        const isOwner = (user && (r.user?._id === user.id || r.user === user.id || r.user?._id === user._id));
+                        const canManage = isOwner || (user && user.isAdmin);
+                        return (
+                          <li key={r._id} className="p-3 border rounded bg-white dark:bg-gray-800">
+                            {editingReviewId === r._id ? (
+                              <form onSubmit={onSaveEdit}>
+                                <div className="flex items-center gap-2 mb-2">
+                                  <label className="mr-2">Оценка:</label>
+                                  <select className="border rounded px-2 py-1" value={editingRating} onChange={e => setEditingRating(e.target.value)}>
+                                    {[1,2,3,4,5].map(n => <option key={n} value={n}>{n}</option>)}
+                                  </select>
+                                </div>
+                                <textarea className="w-full border rounded p-2 mb-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                                          rows={3}
+                                          value={editingComment}
+                                          onChange={e => setEditingComment(e.target.value)} />
+                                <div className="flex gap-2">
+                                  <button type="submit" className="bg-blue-600 text-white px-3 py-1 rounded">Запази</button>
+                                  <button type="button" onClick={onCancelEdit} className="bg-gray-400 text-white px-3 py-1 rounded">Отказ</button>
+                                </div>
+                              </form>
+                            ) : (
+                              <div className="flex flex-col gap-1">
+                                <div className="flex items-center justify-between">
+                                  <div className="font-semibold">{r.user?.username || r.user?.email || 'Анонимен'}</div>
+                                  <div className="text-yellow-500">{'★'.repeat(r.rating)}{'☆'.repeat(5 - r.rating)}</div>
+                                </div>
+                                {r.comment && <div className="text-sm">{r.comment}</div>}
+                                {canManage && (
+                                  <div className="mt-2 flex gap-2">
+                                    <button className="bg-blue-500 text-white px-2 py-1 rounded" onClick={() => onEditReview(r)}>Редактирай</button>
+                                    <button className="bg-red-500 text-white px-2 py-1 rounded" onClick={() => onDeleteReview(r._id)}>Изтрий</button>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  )}
+                </div>
+
                 {/* Примерен бутон за добавяне в кошница – нагласете към вашата логика */}
                 {/* ...existing code... (button moved below) */}
                 {cartError && <div className="text-red-600 text-sm">{cartError}</div>}

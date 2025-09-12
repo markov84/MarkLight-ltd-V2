@@ -57,12 +57,12 @@ export default function About() {
       </Helmet>
       <div className="space-y-16">
       {/* Hero Section */}
-      <section className="text-center py-16 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-700 rounded-3xl">
+  <section className="text-center py-16 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-700 rounded-3xl">
         <div className="max-w-4xl mx-auto px-6">
           <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 bg-clip-text text-transparent">
             {t('about.title')}
           </h1>
-          <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-8 leading-relaxed">
+            <p className="text-xl md:text-2xl text-gray-800 dark:text-gray-200 mb-8 leading-relaxed">
             {t('about.hero.subtitle')}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -90,7 +90,7 @@ export default function About() {
               <h2 className="text-3xl md:text-4xl font-bold mb-6 text-gray-900 dark:text-white">
                 {t('about.story.title')}
               </h2>
-              <div className="space-y-4 text-lg text-gray-600 dark:text-gray-300 leading-relaxed">
+                      <div className="space-y-4 text-lg text-gray-800 dark:text-gray-200 leading-relaxed">
                 <p>
                   {t('about.story.p1')}
                 </p>
@@ -116,7 +116,7 @@ export default function About() {
           <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900 dark:text-white">
             {t('about.features.title')}
           </h2>
-          <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+              <p className="text-lg text-gray-800 dark:text-gray-200 max-w-2xl mx-auto">
             {t('about.features.subtitle')}
           </p>
         </div>
@@ -133,7 +133,7 @@ export default function About() {
               <h3 className="text-xl font-semibold mb-3 text-gray-900 dark:text-white">
                 {feature.title}
               </h3>
-              <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+                      <p className="text-gray-800 dark:text-gray-200 leading-relaxed">
                 {feature.description}
               </p>
             </div>
