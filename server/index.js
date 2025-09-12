@@ -1,3 +1,4 @@
+  tls: { rejectUnauthorized: false }
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -16,14 +17,17 @@ import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import nodemailer from 'nodemailer';
 
 
 import authRoutes from './routes/auth.js';
 import productRoutes from './routes/product.js';
 import orderRoutes from './routes/order.js';
 import adminRoutes from './routes/admin.js';
+import { auth } from './utils/auth.js';
 import contactRoutes from './routes/contact.js';
 import couponRoutes from './routes/coupon.js';
+import Suggestion from './models/Suggestion.js';
 
 import { notFound, errorHandler } from './middleware/errorHandler.js';
 
@@ -74,6 +78,8 @@ app.use(cors({
   credentials: true
 }));
 
+// Публичен route за желания и препоръки (след CORS!)
+
 // Static serving for uploads with CORS header for images
 const uploadsPath = path.resolve(__dirname, '../uploads');
 app.use('/uploads', (req, res, next) => {
@@ -110,6 +116,21 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/coupon', couponRoutes);
 
+// Публичен маршрут за желания/препоръки
+app.post('/api/wish-suggestion', auth, async (req, res) => {
+  try {
+    const { text } = req.body;
+    if (!text || text.length < 3) {
+      return res.status(400).json({ msg: 'Въведете желание или препоръка!' });
+    }
+    const suggestion = new Suggestion({ text, user: req.user._id });
+    await suggestion.save();
+    res.status(201).json({ msg: 'Желанието е изпратено успешно!', suggestion });
+  } catch (e) {
+    res.status(500).json({ msg: 'Грешка при записване на желание', error: e.message });
+  }
+});
+
 
 // 404 and error handlers
 app.use(notFound);
@@ -123,11 +144,39 @@ if (!MONGO_URI) {
   process.exit(1);
 }
 
+
+import { createServer } from 'http';
+import { Server as SocketIO } from 'socket.io';
+
+const server = createServer(app);
+const io = new SocketIO(server, {
+  cors: {
+    origin: origins,
+    credentials: true
+  }
+});
+app.set('io', io);
+
+io.on('connection', (socket) => {
+  // Очаква се клиентът да изпрати userId при свързване
+  socket.on('registerUser', (userId) => {
+    if (userId) socket.join(String(userId));
+  });
+});
+
 mongoose.connect(MONGO_URI)
   .then(() => {
-    app.listen(PORT, () => console.log('Server running on port', PORT));
+    server.listen(PORT, () => console.log('Server + Socket.IO running on port', PORT));
   })
   .catch(err => {
     console.error('Mongo connection error:', err);
     process.exit(1);
   });
+
+
+const t = nodemailer.createTransport({
+  host: process.env.SMTP_HOST,
+  port: Number(process.env.SMTP_PORT || 587),
+  secure: process.env.SMTP_SECURE === 'true',
+  auth: process.env.SMTP_USER ? { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS } : undefined,
+});

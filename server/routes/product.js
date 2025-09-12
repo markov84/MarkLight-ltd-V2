@@ -1,4 +1,5 @@
- import express from 'express';
+
+import express from 'express';
 import { body, validationResult } from 'express-validator';
 import logger from '../utils/logger.js';
 import Product from '../models/Product.js';
@@ -6,7 +7,42 @@ import Review from '../models/Review.js';
 import Category from '../models/Category.js';
 import Subcategory from '../models/Subcategory.js';
 
+
 const router = express.Router();
+
+
+
+// ───────────────────────────────────────────────────────────────────────────────
+// Редакция на ревю (admin)
+// ───────────────────────────────────────────────────────────────────────────────
+router.put('/:id/review', auth, async (req, res) => {
+  try {
+    const { reviewId, comment, rating } = req.body;
+    if (!reviewId || !isValidObjectId(reviewId)) {
+      return res.status(400).json({ msg: 'Невалиден reviewId' });
+    }
+    if (rating && (rating < 1 || rating > 5)) {
+      return res.status(400).json({ msg: 'Оценката трябва да е между 1 и 5' });
+    }
+    const review = await Review.findById(reviewId);
+    if (!review) return res.status(404).json({ msg: 'Ревюто не е намерено' });
+    if (comment !== undefined) review.comment = comment;
+    if (rating !== undefined) review.rating = rating;
+    await review.save();
+    // Обнови агрегирания рейтинг и брой отзиви за продукта
+    const reviews = await Review.find({ product: req.params.id }).select('rating');
+    const avgRating = reviews.length === 0 ? 0 : reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;
+    const product = await Product.findById(req.params.id);
+    if (product) {
+      product.rating = avgRating;
+      product.reviewCount = reviews.length;
+      await product.save();
+    }
+    res.json({ msg: 'Ревюто е редактирано успешно', review });
+  } catch (error) {
+    res.status(500).json({ msg: 'Грешка при редакция на ревю', error: error.message });
+  }
+});
 
 // ───────────────────────────────────────────────────────────────────────────────
 // Helpers
@@ -16,8 +52,11 @@ const isValidObjectId = (id) => /^[a-fA-F0-9]{24}$/.test(id);
 // ───────────────────────────────────────────────────────────────────────────────
 // Добавяне на отзив (rating 1..5)
 // ───────────────────────────────────────────────────────────────────────────────
+import { auth } from '../utils/auth.js';
+
 router.post(
   '/:id/review',
+  auth,
   [
     body('rating')
       .isInt({ min: 1, max: 5 })
